@@ -1,0 +1,110 @@
+﻿@{
+    ViewData["Title"] = "Follower Goal";
+}
+
+<style>
+    html, body {
+        height: 100%
+    }
+
+    #content {
+        width: 100%;
+        height: 100%;
+        font-family: calibri;
+        font-size: 100vh;
+        font-weight: bold;
+        position: relative;
+        box-shadow: 0px 0px 10px rgb(0, 0, 0);
+    }
+
+    #background {
+        background-color: lightgray;
+        width: 100%;
+        height: 100%;
+        line-height: 100vh;
+    }
+
+    #progress {
+        display: inline-block;
+        background: linear-gradient(transparent, rgba(0, 0, 0, 0.15)) rgb(70, 230, 90);
+        box-shadow: 0px 0px 1px rgb(0, 0, 0);
+        width: 0%;
+        height: 100%;
+    }
+
+    #leftText, #middleText, #rightText {
+        display: inline-block;
+        position: absolute;
+        text-align: center;
+        vertical-align: middle;
+        top: 0;
+    }
+
+    #leftText {
+        left: 0%;
+        padding: 0 1vw;
+    }
+
+    #middleText {
+        left: 0%;
+        width: 100%;
+    }
+
+    #rightText {
+        right: 0%;
+        padding: 0 1vw;
+    }
+
+    #border {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        border: 5vh solid rgba(0,0,0,0.5);
+        box-sizing: border-box;
+    }
+</style>
+
+
+
+<div id="content">
+    <div id="background">
+        <div id="progress"></div>
+        <div id="leftText">Follower Goal</div>
+        <div id="middleText"></div>
+        <div id="rightText"></div>
+    </div>
+    <div id="border"></div>
+</div>
+
+<div class="container">
+    <div class="row">&nbsp;</div>
+    <div class="row">
+        <div class="col-2">User</div>
+        <div class="col-4"><input type="text" id="userInput" /></div>
+    </div>
+    <div class="row">
+        <div class="col-2">Message</div>
+        <div class="col-4"><input type="text" id="messageInput" /></div>
+    </div>
+    <div class="row">&nbsp;</div>
+    <div class="row">
+        <div class="col-6">
+            <input type="button" id="sendButton" value="Send Message" />
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <hr />
+    </div>
+</div>
+<div class="row">
+    <div class="col-6">
+        <ul id="messagesList"></ul>
+    </div>
+</div>
+
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script src="~/js/followers.js"></script>
