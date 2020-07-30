@@ -5,12 +5,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
-using System.Linq;
 using CustomFollowerGoal.Code;
 using CustomFollowerGoal.Code.HostedServices.Scheduler;
 using CustomFollowerGoal.Code.HostedServices.Scheduler.SchedulerTasks;
 using CustomFollowerGoal.Hubs;
 using CustomFollowerGoal.Models.WebHooks;
+using CustomFollowerGoal.Code.UserAccessToken;
 
 namespace CustomFollowerGoal
 {
@@ -28,6 +28,18 @@ namespace CustomFollowerGoal
         {
             services.AddSignalR();
             services.AddControllersWithViews().AddNewtonsoftJson();
+
+            //add user access state store
+            services.AddSingleton<UserAccessStateStore, UserAccessStateStore>(serviceProvider =>
+            {
+                return new UserAccessStateStore();
+            });
+
+            //add user access token store
+            services.AddSingleton<UserAccessTokenStore, UserAccessTokenStore>(serviceProvider =>
+            {
+                return new UserAccessTokenStore();
+            });
 
             //add twitch api client
             services.AddSingleton<ITwitchApiClient, TwitchApiClient>(serviceProvider =>
@@ -65,6 +77,19 @@ namespace CustomFollowerGoal
                 IConfigurationSection appSettings = configuration.GetSection("AppSettings");
 
                 return new UpdateFollowersTask(hubContext, twitchApiClient, int.Parse(appSettings["stream-id"]));
+            });
+
+            //add scheduled subs update task
+            services.AddSingleton<IScheduledTask, UpdateSubsTask>(serviceProvider =>
+            {
+                ITwitchApiClient twitchApiClient = serviceProvider.GetService<ITwitchApiClient>();
+                IHubContext<SubsHub> hubContext = serviceProvider.GetService<IHubContext<SubsHub>>();
+                UserAccessTokenStore userAccessTokenStore = serviceProvider.GetService< UserAccessTokenStore>();
+
+                IConfiguration configuration = serviceProvider.GetService<IConfiguration>();
+                IConfigurationSection appSettings = configuration.GetSection("AppSettings");
+
+                return new UpdateSubsTask(hubContext, twitchApiClient, userAccessTokenStore, int.Parse(appSettings["stream-id"]));
             });
 
             //add scheduler
@@ -108,7 +133,8 @@ namespace CustomFollowerGoal
                     name: "default",
                     pattern: "{controller=Followers}/{action=Index}/{id?}");
 
-                endpoints.MapHub<FollowersHub>("followers");
+                endpoints.MapHub<FollowersHub>("followersHub");
+                endpoints.MapHub<SubsHub>("subsHub");
             });
         }
     }

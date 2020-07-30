@@ -1,41 +1,41 @@
 ﻿"use strict";
 
-var _numFollowers = 0;
-var _followerGoal = 100;
+var _numSubs = 0;
+var _subsGoal = 400;
 
-var _connection = new signalR.HubConnectionBuilder().withUrl("/followers").build();
+var _connection = new signalR.HubConnectionBuilder().withUrl("/followersHub").build();
 
-document.getElementById("rightText").innerText = _followerGoal;
+document.getElementById("rightText").innerText = _subsGoal;
 
 function updateDisplay() {
-    document.getElementById("middleText").innerText = _numFollowers;
-    document.getElementById("rightText").innerText = _followerGoal;
+    document.getElementById("middleText").innerText = _numSubs;
+    document.getElementById("rightText").innerText = _subsGoal;
 
-    document.getElementById("progress").style.width = `${(_numFollowers / _followerGoal) * 100}%`;
+    document.getElementById("progress").style.width = `${(_numSubs / _subsGoal) * 100}%`;
 }
 
 _connection.on("UpdateFollowers", function (numFollowers) {
 
-    _numFollowers = numFollowers;
+    _numSubs = numFollowers;
     updateDisplay();
 });
 
 _connection.on("UpdateFollowerGoal", function (followerGoal) {
 
-    _followerGoal = followerGoal;
+    _subsGoal = followerGoal;
     updateDisplay();
 });
 
 
 
-function updateFollowers() {
+function updateSubs() {
     _connection.invoke("RequestFollowersUpdate").catch(function (err) {
         return console.error(err.toString());
     });
 }
 
 _connection.start().then(function () {
-    updateFollowers();
+    updateSubs();
 }).catch(function (err) {
     return console.error(err.toString());
 });

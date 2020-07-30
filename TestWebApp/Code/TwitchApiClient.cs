@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using CustomFollowerGoal.Models.Follows;
 using CustomFollowerGoal.Models.WebHooks;
+using CustomFollowerGoal.Models.Subs;
+using System;
 
 namespace CustomFollowerGoal.Code
 {
@@ -47,6 +49,31 @@ namespace CustomFollowerGoal.Code
             HttpResponseMessage response = await _client.GetAsync(url);
             string jsonString = await response.Content.ReadAsStringAsync();
             FollowsModel data = JsonConvert.DeserializeObject<FollowsModel>(jsonString);
+
+            return data;
+        }
+
+        public async Task<SubsModel> GetSubs(int broadcasterId, string userAccessToken, string cursor = null)
+        {
+            var url = "https://api.twitch.tv/helix/subscriptions";
+
+            url = QueryHelpers.AddQueryString(url, "broadcaster_id", broadcasterId.ToString());
+
+            if(cursor != null)
+                url = QueryHelpers.AddQueryString(url, "after", cursor);
+
+            HttpResponseMessage response = await _client.SendAsync(new HttpRequestMessage()
+            {
+                RequestUri = new Uri(url),
+                Method = HttpMethod.Get,
+                Headers = {
+                    { "Authorization", $"Bearer {userAccessToken}" },
+                    { "client-id", _clientId }
+                }
+            });
+
+            string jsonString = await response.Content.ReadAsStringAsync();
+            SubsModel data = JsonConvert.DeserializeObject<SubsModel>(jsonString);
 
             return data;
         }

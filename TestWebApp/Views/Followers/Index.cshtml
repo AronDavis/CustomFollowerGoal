@@ -1,18 +1,30 @@
 ﻿@{
     ViewData["Title"] = "Follower Goal";
-}
+}   
 
 <style>
     html, body {
         height: 100%
     }
 
+    #container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 75vw;
+        height: 75vh;
+        line-height: 75vh;
+        font-size: 75vh;
+        font-family: calibri;
+        font-weight: bold;
+        overflow: hidden;
+    }
+
     #content {
         width: 100%;
         height: 100%;
-        font-family: calibri;
-        font-size: 100vh;
-        font-weight: bold;
+        
         position: relative;
         box-shadow: 0px 0px 10px rgb(0, 0, 0);
     }
@@ -21,11 +33,9 @@
         background-color: lightgray;
         width: 100%;
         height: 100%;
-        line-height: 100vh;
     }
 
     #progress {
-        display: inline-block;
         background: linear-gradient(transparent, rgba(0, 0, 0, 0.15)) rgb(70, 230, 90);
         box-shadow: 0px 0px 1px rgb(0, 0, 0);
         width: 0%;
@@ -33,7 +43,6 @@
     }
 
     #leftText, #middleText, #rightText {
-        display: inline-block;
         position: absolute;
         text-align: center;
         vertical-align: middle;
@@ -67,42 +76,15 @@
 </style>
 
 
-
-<div id="content">
-    <div id="background">
-        <div id="progress"></div>
-        <div id="leftText">Follower Goal</div>
-        <div id="middleText"></div>
-        <div id="rightText"></div>
-    </div>
-    <div id="border"></div>
-</div>
-
-<div class="container">
-    <div class="row">&nbsp;</div>
-    <div class="row">
-        <div class="col-2">User</div>
-        <div class="col-4"><input type="text" id="userInput" /></div>
-    </div>
-    <div class="row">
-        <div class="col-2">Message</div>
-        <div class="col-4"><input type="text" id="messageInput" /></div>
-    </div>
-    <div class="row">&nbsp;</div>
-    <div class="row">
-        <div class="col-6">
-            <input type="button" id="sendButton" value="Send Message" />
+<div id="container">
+    <div id="content">
+        <div id="background">
+            <div id="progress"></div>
+            <div id="leftText">Follower Goal</div>
+            <div id="middleText"></div>
+            <div id="rightText"></div>
         </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-12">
-        <hr />
-    </div>
-</div>
-<div class="row">
-    <div class="col-6">
-        <ul id="messagesList"></ul>
+        <div id="border"></div>
     </div>
 </div>
 
