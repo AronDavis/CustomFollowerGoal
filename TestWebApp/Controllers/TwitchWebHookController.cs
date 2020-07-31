@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 using CustomFollowerGoal.Code;
 using CustomFollowerGoal.Hubs;
 using CustomFollowerGoal.Models.Follows;
+using CustomFollowerGoal.Models.Subs;
+using CustomFollowerGoal.Code.Services;
+using CustomFollowerGoal.Code.UserAccessToken;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -16,19 +19,35 @@ namespace CustomFollowerGoal.Controllers
     [ApiController]
     public class TwitchWebHookController : ControllerBase
     {
-        private readonly IHubContext<FollowersHub> _hubContext;
+        private readonly IHubContext<FollowersHub> _followersHubContext;
+        private readonly IHubContext<SubsHub> _subsHubContext;
         private readonly ITwitchApiClient _twitchApiClient;
+        private readonly UserAccessTokenStore _userAccessTokenStore;
 
-        public TwitchWebHookController(IHubContext<FollowersHub> hubContext, ITwitchApiClient twitchApiClient)
+        public TwitchWebHookController(
+            IHubContext<FollowersHub> followersHubContext, 
+            IHubContext<SubsHub> subsHubContext, 
+            ITwitchApiClient twitchApiClient,
+            UserAccessTokenStore userAccessTokenStore)
         {
-            _hubContext = hubContext;
+            _followersHubContext = followersHubContext;
+            _subsHubContext = subsHubContext;
             _twitchApiClient = twitchApiClient;
+            _userAccessTokenStore = userAccessTokenStore;
         }
 
 
         // GET: api/<TwitchWebHookController>
+        /// <summary>
+        /// Handles validating the webhook with Twitch.
+        /// </summary>
+        /// <param name="mode"></param>
+        /// <param name="topic"></param>
+        /// <param name="challenge"></param>
+        /// <param name="leaseSeconds"></param>
+        /// <returns></returns>
         [HttpGet]
-        public async Task<IActionResult> Get(
+        public IActionResult Get(
             [FromQuery(Name = "hub.mode")]string mode,
             [FromQuery(Name = "hub.topic")] string topic,
             [FromQuery(Name = "hub.challenge")] string challenge,
@@ -39,14 +58,27 @@ namespace CustomFollowerGoal.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(FollowsWebHookModel newFollows)
+        [Route("follows")]
+        public async Task<IActionResult> Follows(FollowsWebHookModel newFollows)
         {
-            //...can probably just take the first one
-            foreach (var data in newFollows.Data)
-            {
-                var follows = await _twitchApiClient.GetFollows(data.ToId);
-                await _hubContext.Clients.All.SendAsync("UpdateFollowers", follows.Total);
-            }
+            var data = newFollows.Data[0];
+            var follows = await _twitchApiClient.GetFollows(data.ToId);
+            await _followersHubContext.Clients.All.SendAsync("UpdateFollowers", follows.Total);
+
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("subs")]
+        public async Task<IActionResult> Subs(SubsWebHookModel newSubs)
+        {
+            var data = newSubs.Data[0];
+            var eventData = data.EventData[0];
+
+            SubsService subsService = new SubsService(_twitchApiClient, _userAccessTokenStore);
+            int subCount = await subsService.GetSubsCountAsync(eventData.BroadcasterId);
+
+            await _subsHubContext.Clients.All.SendAsync("UpdateSubs", subCount); //used to be receive message
 
             return Ok();
         }

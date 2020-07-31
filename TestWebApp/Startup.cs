@@ -52,15 +52,31 @@ namespace CustomFollowerGoal
                 return new TwitchApiClient(oauthToken, clientId);
             });
 
-            //add scheduled webhook subscription task
+            //add scheduled webhook subscription task for follows
+            services.AddSingleton<IScheduledTask, WebHookSubscriptionTask>(serviceProvider =>
+            {
+                ITwitchApiClient twitchApiClient = serviceProvider.GetService<ITwitchApiClient>();
+                UserAccessTokenStore userAccessTokenStore = serviceProvider.GetService<UserAccessTokenStore>();
+                var model = new WebHooksModel()
+                {
+                    Callback = "http://test-env.eba-aafhtxzp.us-west-2.elasticbeanstalk.com/api/twitchwebhook/follows",
+                    Mode = "subscribe",
+                    Topic = "https://api.twitch.tv/helix/users/follows?first=1&to_id=58669321",
+                    LeaseSeconds = 864000 //max lease time
+                };
+
+                return new WebHookSubscriptionTask(twitchApiClient, model, userAccessTokenStore.UserAccessToken);
+            });
+
+            //add scheduled webhook subscription task for subs
             services.AddSingleton<IScheduledTask, WebHookSubscriptionTask>(serviceProvider =>
             {
                 ITwitchApiClient twitchApiClient = serviceProvider.GetService<ITwitchApiClient>();
                 var model = new WebHooksModel()
                 {
-                    Callback = "http://test-env.eba-aafhtxzp.us-west-2.elasticbeanstalk.com/api/twitchwebhook",
+                    Callback = "http://test-env.eba-aafhtxzp.us-west-2.elasticbeanstalk.com/api/twitchwebhook/subs",
                     Mode = "subscribe",
-                    Topic = "https://api.twitch.tv/helix/users/follows?first=1&to_id=58669321",
+                    Topic = "https://api.twitch.tv/helix/subscriptions/events?broadcaster_id=58669321&first=1",
                     LeaseSeconds = 864000 //max lease time
                 };
 

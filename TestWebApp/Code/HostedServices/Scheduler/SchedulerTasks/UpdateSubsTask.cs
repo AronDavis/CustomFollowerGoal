@@ -2,9 +2,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 using CustomFollowerGoal.Hubs;
-using CustomFollowerGoal.Models.Subs;
-using System.Collections.Generic;
 using CustomFollowerGoal.Code.UserAccessToken;
+using CustomFollowerGoal.Code.Services;
 
 namespace CustomFollowerGoal.Code.HostedServices.Scheduler.SchedulerTasks
 {
@@ -27,22 +26,10 @@ namespace CustomFollowerGoal.Code.HostedServices.Scheduler.SchedulerTasks
 
         public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            string userAccessToken = _userAccessTokenStore.UserAccessToken;
+            SubsService subsService = new SubsService(_twitchApiClient, _userAccessTokenStore);
+            int subCount = await subsService.GetSubsCountAsync(_streamId);
 
-            if (userAccessToken == null)
-                return;
-
-            SubsModel subs = await _twitchApiClient.GetSubs(_streamId, userAccessToken);
-
-            List<SubData> subData = new List<SubData>(subs.Data);
-
-            while (subs.Pagination.Cursor != null)
-            {
-                subs = await _twitchApiClient.GetSubs(_streamId, userAccessToken, subs.Pagination.Cursor);
-                subData.AddRange(subs.Data);
-            }
-
-            await _hubContext.Clients.All.SendAsync("UpdateSubs", subData.Count); //used to be receive message
+            await _hubContext.Clients.All.SendAsync("UpdateSubs", subCount); //used to be receive message
         }
     }
 }

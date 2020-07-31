@@ -8,7 +8,7 @@ namespace CustomFollowerGoal.Code
 {
     public interface ITwitchApiClient
     {
-        Task<HttpStatusCode> SetWebHook(WebHooksModel model);
+        Task<HttpStatusCode> SetWebHook(WebHooksModel model, string oauthOverride = null);
 
         Task<FollowsModel> GetFollows(int toId);
         Task<SubsModel> GetSubs(int broadcasterId, string userAccessToken, string after = null);

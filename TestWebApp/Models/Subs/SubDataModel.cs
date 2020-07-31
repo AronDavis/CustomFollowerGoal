@@ -1,9 +1,8 @@
 ﻿using Newtonsoft.Json;
-using System;
 
 namespace CustomFollowerGoal.Models.Subs
 {
-    public class SubData
+    public class SubDataModel
     {
         [JsonProperty("broadcaster_id")]
         public int BroadcasterId { get; set; }

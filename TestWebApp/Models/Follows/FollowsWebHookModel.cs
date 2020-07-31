@@ -6,6 +6,6 @@ namespace CustomFollowerGoal.Models.Follows
     public class FollowsWebHookModel
     {
         [JsonProperty("data")]
-        public FollowData[] Data { get; set; }
+        public FollowDataModel[] Data { get; set; }
     }
 }

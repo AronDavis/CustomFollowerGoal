@@ -10,16 +10,18 @@ namespace CustomFollowerGoal.Code.HostedServices.Scheduler.SchedulerTasks
 
         private readonly ITwitchApiClient _twitchApiClient;
         private readonly WebHooksModel _model;
+        private readonly string _oauthOverride;
 
-        public WebHookSubscriptionTask(ITwitchApiClient twitchApiClient, WebHooksModel model)
+        public WebHookSubscriptionTask(ITwitchApiClient twitchApiClient, WebHooksModel model, string oauthOverride = null)
         {
             _twitchApiClient = twitchApiClient;
             _model = model;
+            _oauthOverride = oauthOverride;
         }
 
         public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            await _twitchApiClient.SetWebHook(_model);
+            await _twitchApiClient.SetWebHook(_model, _oauthOverride);
         }
     }
 }

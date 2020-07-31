@@ -27,13 +27,22 @@ namespace CustomFollowerGoal.Code
             _client.DefaultRequestHeaders.Add("client-id", _clientId);
         }
 
-        public async Task<HttpStatusCode> SetWebHook(WebHooksModel model)
+        public async Task<HttpStatusCode> SetWebHook(WebHooksModel model, string oauthOverride = null)
         {
             var url = "https://api.twitch.tv/helix/webhooks/hub";
 
             var json = JsonConvert.SerializeObject(model);
             var data = new StringContent(json, Encoding.UTF8, "application/json");
-            HttpResponseMessage response = await _client.PostAsync(url, data);
+
+            HttpResponseMessage response = await _client.SendAsync(new HttpRequestMessage()
+            {
+                RequestUri = new Uri(url),
+                Method = HttpMethod.Post,
+                Headers = {
+                    { "Authorization", $"Bearer {oauthOverride ?? _oauthToken}" }
+                },
+                Content = data
+            });
 
             return response.StatusCode;
         }
@@ -67,8 +76,7 @@ namespace CustomFollowerGoal.Code
                 RequestUri = new Uri(url),
                 Method = HttpMethod.Get,
                 Headers = {
-                    { "Authorization", $"Bearer {userAccessToken}" },
-                    { "client-id", _clientId }
+                    { "Authorization", $"Bearer {userAccessToken}" }
                 }
             });
 

@@ -8,6 +8,6 @@ namespace CustomFollowerGoal.Models.Follows
         public int Total { get; set; }
 
         [JsonProperty("data")]
-        public FollowData[] Data { get; set; }
+        public FollowDataModel[] Data { get; set; }
     }
 }
