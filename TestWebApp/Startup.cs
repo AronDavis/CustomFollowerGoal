@@ -49,7 +49,8 @@ namespace CustomFollowerGoal
 
                 string oauthToken = appSettings["api-oauth-token"];
                 string clientId = appSettings["api-client-id"];
-                return new TwitchApiClient(oauthToken, clientId);
+                string clientSecret = appSettings["api-client-secret"];
+                return new TwitchApiClient(oauthToken, clientId, clientSecret);
             });
 
             //add scheduled webhook subscription task for follows
@@ -65,7 +66,7 @@ namespace CustomFollowerGoal
                     LeaseSeconds = 864000 //max lease time
                 };
 
-                return new WebHookSubscriptionTask(twitchApiClient, model, userAccessTokenStore.UserAccessToken);
+                return new WebHookSubscriptionTask(twitchApiClient, model, userAccessTokenStore);
             });
 
             //add scheduled webhook subscription task for subs
@@ -106,6 +107,15 @@ namespace CustomFollowerGoal
                 IConfigurationSection appSettings = configuration.GetSection("AppSettings");
 
                 return new UpdateSubsTask(hubContext, twitchApiClient, userAccessTokenStore, int.Parse(appSettings["stream-id"]));
+            });
+
+            //add scheduled task - refresh user access token
+            services.AddSingleton<IScheduledTask, RefreshUserAccessTokenTask>(serviceProvider =>
+            {
+                ITwitchApiClient twitchApiClient = serviceProvider.GetService<ITwitchApiClient>();
+                UserAccessTokenStore userAccessTokenStore = serviceProvider.GetService<UserAccessTokenStore>();
+
+                return new RefreshUserAccessTokenTask(twitchApiClient, userAccessTokenStore);
             });
 
             //add scheduler

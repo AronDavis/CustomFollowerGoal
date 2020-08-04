@@ -74,7 +74,13 @@ namespace CustomFollowerGoal.Controllers
             if (data?.AccessToken == null)
                 return BadRequest("Failed to authorize.");
 
-            Interlocked.Exchange(ref _userAccessTokenStore.UserAccessToken, data.AccessToken);
+            var refreshableToken = new RefreshableUserAccessToken()
+            {
+                AccessToken = data.AccessToken,
+                RefreshToken = data.RefreshToken
+            };
+
+            Interlocked.Exchange(ref _userAccessTokenStore.UserAccessToken, refreshableToken);
 
             return Ok("Auth Successful!");
         }

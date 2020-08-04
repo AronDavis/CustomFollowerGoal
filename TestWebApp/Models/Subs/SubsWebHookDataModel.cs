@@ -18,6 +18,6 @@ namespace CustomFollowerGoal.Models.Subs
         public string Version { get; set; }
 
         [JsonProperty("event_data")]
-        public SubDataModel[] EventData { get; set; }
+        public SubDataModel EventData { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using CustomFollowerGoal.Code.UserAccessToken;
 using CustomFollowerGoal.Models.WebHooks;
 
 namespace CustomFollowerGoal.Code.HostedServices.Scheduler.SchedulerTasks
@@ -10,18 +11,18 @@ namespace CustomFollowerGoal.Code.HostedServices.Scheduler.SchedulerTasks
 
         private readonly ITwitchApiClient _twitchApiClient;
         private readonly WebHooksModel _model;
-        private readonly string _oauthOverride;
+        private readonly UserAccessTokenStore _userAccessTokenStore;
 
-        public WebHookSubscriptionTask(ITwitchApiClient twitchApiClient, WebHooksModel model, string oauthOverride = null)
+        public WebHookSubscriptionTask(ITwitchApiClient twitchApiClient, WebHooksModel model, UserAccessTokenStore userAccessTokenStore = null)
         {
             _twitchApiClient = twitchApiClient;
             _model = model;
-            _oauthOverride = oauthOverride;
+            _userAccessTokenStore = userAccessTokenStore;
         }
 
         public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            await _twitchApiClient.SetWebHook(_model, _oauthOverride);
+            await _twitchApiClient.SetWebHook(_model, _userAccessTokenStore?.UserAccessToken?.AccessToken);
         }
     }
 }

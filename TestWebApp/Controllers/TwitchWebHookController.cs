@@ -47,6 +47,8 @@ namespace CustomFollowerGoal.Controllers
         /// <param name="leaseSeconds"></param>
         /// <returns></returns>
         [HttpGet]
+        [Route("follows")]
+        [Route("subs")]
         public IActionResult Get(
             [FromQuery(Name = "hub.mode")]string mode,
             [FromQuery(Name = "hub.topic")] string topic,
@@ -73,10 +75,9 @@ namespace CustomFollowerGoal.Controllers
         public async Task<IActionResult> Subs(SubsWebHookModel newSubs)
         {
             var data = newSubs.Data[0];
-            var eventData = data.EventData[0];
 
             SubsService subsService = new SubsService(_twitchApiClient, _userAccessTokenStore);
-            int subCount = await subsService.GetSubsCountAsync(eventData.BroadcasterId);
+            int subCount = await subsService.GetSubsCountAsync(data.EventData.BroadcasterId);
 
             await _subsHubContext.Clients.All.SendAsync("UpdateSubs", subCount); //used to be receive message
 

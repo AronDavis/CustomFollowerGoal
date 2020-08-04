@@ -8,6 +8,7 @@ using CustomFollowerGoal.Models.Follows;
 using CustomFollowerGoal.Models.WebHooks;
 using CustomFollowerGoal.Models.Subs;
 using System;
+using CustomFollowerGoal.Models;
 
 namespace CustomFollowerGoal.Code
 {
@@ -16,11 +17,13 @@ namespace CustomFollowerGoal.Code
         private readonly HttpClient _client;
         private readonly string _oauthToken;
         private readonly string _clientId;
+        private readonly string _clientSecret;
 
-        public TwitchApiClient(string oauthToken, string clientId)
+        public TwitchApiClient(string oauthToken, string clientId, string clientSecret)
         {
             _oauthToken = oauthToken;
             _clientId = clientId;
+            _clientSecret = clientSecret;
 
             _client = new HttpClient();
             _client.DefaultRequestHeaders.Add("Authorization", $"Bearer { _oauthToken }");
@@ -43,6 +46,8 @@ namespace CustomFollowerGoal.Code
                 },
                 Content = data
             });
+
+            string shit = await response.Content.ReadAsStringAsync();
 
             return response.StatusCode;
         }
@@ -82,6 +87,24 @@ namespace CustomFollowerGoal.Code
 
             string jsonString = await response.Content.ReadAsStringAsync();
             SubsModel data = JsonConvert.DeserializeObject<SubsModel>(jsonString);
+
+            return data;
+        }
+
+        public async Task<RefreshableUserAccessTokenModel> RefreshUserAccessToken(string refreshToken)
+        {
+            HttpClient client = new HttpClient();
+
+            string url = "https://id.twitch.tv/oauth2/token";
+
+            url = QueryHelpers.AddQueryString(url, "client_id", _clientId);
+            url = QueryHelpers.AddQueryString(url, "client_secret", _clientSecret);
+            url = QueryHelpers.AddQueryString(url, "grant_type", "refresh_token");
+            url = QueryHelpers.AddQueryString(url, "refresh_token", refreshToken);
+
+            HttpResponseMessage response = await client.PostAsync(url, null);
+            string jsonString = await response.Content.ReadAsStringAsync();
+            RefreshableUserAccessTokenModel data = JsonConvert.DeserializeObject<RefreshableUserAccessTokenModel>(jsonString);
 
             return data;
         }

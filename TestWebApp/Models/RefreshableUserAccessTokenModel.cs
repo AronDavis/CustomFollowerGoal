@@ -2,7 +2,7 @@
 
 namespace CustomFollowerGoal.Models
 {
-    public class RefreshableUserAccessTokenModel
+    public class UserAccessTokenModel
     {
         [JsonProperty("access_token")]
         public string AccessToken { get; set; }
@@ -10,7 +10,13 @@ namespace CustomFollowerGoal.Models
         [JsonProperty("refresh_token")]
         public string RefreshToken { get; set; }
 
+        [JsonProperty("expires_in")]
+        public int SecondsUntilExpiration { get; set; }
+
         [JsonProperty("scope")]
         public string[] Scope { get; set; }
+
+        [JsonProperty("token_type")]
+        public string TokenType { get; set; }
     }
 }

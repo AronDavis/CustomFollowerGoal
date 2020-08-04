@@ -1,7 +1,9 @@
-﻿namespace CustomFollowerGoal.Code.UserAccessToken
+﻿using CustomFollowerGoal.Models;
+
+namespace CustomFollowerGoal.Code.UserAccessToken
 {
     public class UserAccessTokenStore
     {
-        public string UserAccessToken;
+        public RefreshableUserAccessToken UserAccessToken;
     }
 }

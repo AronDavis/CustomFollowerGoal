@@ -17,7 +17,7 @@ namespace CustomFollowerGoal.Code.Services
 
         public async Task<int> GetSubsCountAsync(int streamId)
         {
-            string userAccessToken = _userAccessTokenStore.UserAccessToken;
+            string userAccessToken = _userAccessTokenStore?.UserAccessToken?.AccessToken;
 
             if (userAccessToken == null)
                 return -1;
