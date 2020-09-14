@@ -1,41 +1,41 @@
 ﻿"use strict";
 
-var _numSubs = 0;
-var _subsGoal = 400;
+var _numfollowers = 0;
+var _followersGoal = 4000;
 
 var _connection = new signalR.HubConnectionBuilder().withUrl("/followersHub").build();
 
-document.getElementById("rightText").innerText = _subsGoal;
+document.getElementById("rightText").innerText = _followersGoal;
 
 function updateDisplay() {
-    document.getElementById("middleText").innerText = _numSubs;
-    document.getElementById("rightText").innerText = _subsGoal;
+    document.getElementById("middleText").innerText = _numfollowers;
+    document.getElementById("rightText").innerText = _followersGoal;
 
-    document.getElementById("progress").style.width = `${(_numSubs / _subsGoal) * 100}%`;
+    document.getElementById("progress").style.width = `${(_numfollowers / _followersGoal) * 100}%`;
 }
 
 _connection.on("UpdateFollowers", function (numFollowers) {
 
-    _numSubs = numFollowers;
+    _numfollowers = numFollowers;
     updateDisplay();
 });
 
 _connection.on("UpdateFollowerGoal", function (followerGoal) {
 
-    _subsGoal = followerGoal;
+    _followersGoal = followerGoal;
     updateDisplay();
 });
 
 
 
-function updateSubs() {
+function updateFollows() {
     _connection.invoke("RequestFollowersUpdate").catch(function (err) {
         return console.error(err.toString());
     });
 }
 
 _connection.start().then(function () {
-    updateSubs();
+    updateFollows();
 }).catch(function (err) {
     return console.error(err.toString());
 });

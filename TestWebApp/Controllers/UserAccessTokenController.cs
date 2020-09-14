@@ -82,7 +82,7 @@ namespace CustomFollowerGoal.Controllers
 
             Interlocked.Exchange(ref _userAccessTokenStore.UserAccessToken, refreshableToken);
 
-            return Ok("Auth Successful!");
+            return Ok($"Auth Successful! {data.AccessToken}");
         }
     }
 }

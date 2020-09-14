@@ -1,7 +1,7 @@
 ﻿"use strict";
 
 var _numSubs = 0;
-var _subsGoal = 15;
+var _subsGoal = 100;
 
 var _connection = new signalR.HubConnectionBuilder().withUrl("/subsHub").build();
 
