@@ -15,22 +15,19 @@ namespace CustomFollowerGoal.Code
     public class TwitchApiClient : ITwitchApiClient
     {
         private readonly HttpClient _client;
-        private readonly string _oauthToken;
         private readonly string _clientId;
         private readonly string _clientSecret;
 
-        public TwitchApiClient(string oauthToken, string clientId, string clientSecret)
+        public TwitchApiClient(string clientId, string clientSecret)
         {
-            _oauthToken = oauthToken;
             _clientId = clientId;
             _clientSecret = clientSecret;
 
             _client = new HttpClient();
-            _client.DefaultRequestHeaders.Add("Authorization", $"Bearer { _oauthToken }");
             _client.DefaultRequestHeaders.Add("client-id", _clientId);
         }
 
-        public async Task<HttpStatusCode> SetWebHook(WebHooksModel model, string oauthOverride = null)
+        public async Task<HttpStatusCode> SetWebHook(WebHooksModel model, string oauthToken)
         {
             var url = "https://api.twitch.tv/helix/webhooks/hub";
 
@@ -42,7 +39,7 @@ namespace CustomFollowerGoal.Code
                 RequestUri = new Uri(url),
                 Method = HttpMethod.Post,
                 Headers = {
-                    { "Authorization", $"Bearer {oauthOverride ?? _oauthToken}" }
+                    { "Authorization", $"Bearer {oauthToken}" }
                 },
                 Content = data
             });
@@ -52,7 +49,7 @@ namespace CustomFollowerGoal.Code
             return response.StatusCode;
         }
 
-        public async Task<FollowsModel> GetFollows(int toId)
+        public async Task<FollowsModel> GetFollows(int toId, string oauthToken)
         {
             var url = "https://api.twitch.tv/helix/users/follows";
 
@@ -60,7 +57,15 @@ namespace CustomFollowerGoal.Code
 
             url = QueryHelpers.AddQueryString(url, "to_id", toId.ToString());
 
-            HttpResponseMessage response = await _client.GetAsync(url);
+            HttpResponseMessage response = await _client.SendAsync(new HttpRequestMessage()
+            {
+                RequestUri = new Uri(url),
+                Method = HttpMethod.Get,
+                Headers = {
+                    { "Authorization", $"Bearer {oauthToken}" }
+                }
+            });
+
             string jsonString = await response.Content.ReadAsStringAsync();
             FollowsModel data = JsonConvert.DeserializeObject<FollowsModel>(jsonString);
 

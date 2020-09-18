@@ -13,7 +13,7 @@ namespace CustomFollowerGoal.Code.HostedServices.Scheduler.SchedulerTasks
         private readonly WebHooksModel _model;
         private readonly UserAccessTokenStore _userAccessTokenStore;
 
-        public WebHookSubscriptionTask(ITwitchApiClient twitchApiClient, WebHooksModel model, UserAccessTokenStore userAccessTokenStore = null)
+        public WebHookSubscriptionTask(ITwitchApiClient twitchApiClient, WebHooksModel model, UserAccessTokenStore userAccessTokenStore)
         {
             _twitchApiClient = twitchApiClient;
             _model = model;
@@ -22,7 +22,7 @@ namespace CustomFollowerGoal.Code.HostedServices.Scheduler.SchedulerTasks
 
         public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            await _twitchApiClient.SetWebHook(_model, _userAccessTokenStore?.UserAccessToken?.AccessToken);
+            await _twitchApiClient.SetWebHook(_model, _userAccessTokenStore.UserAccessToken?.AccessToken);
         }
     }
 }

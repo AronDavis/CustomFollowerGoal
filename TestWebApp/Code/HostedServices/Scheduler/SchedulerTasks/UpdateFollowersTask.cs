@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using CustomFollowerGoal.Hubs;
+using CustomFollowerGoal.Code.UserAccessToken;
 
 namespace CustomFollowerGoal.Code.HostedServices.Scheduler.SchedulerTasks
 {
@@ -11,18 +12,20 @@ namespace CustomFollowerGoal.Code.HostedServices.Scheduler.SchedulerTasks
 
         private readonly IHubContext<FollowersHub> _hubContext;
         private readonly ITwitchApiClient _twitchApiClient;
+        private readonly UserAccessTokenStore _userAccessTokenStore;
         private readonly int _toId;
 
-        public UpdateFollowersTask(IHubContext<FollowersHub> hubContext, ITwitchApiClient twitchApiClient, int toId)
+        public UpdateFollowersTask(IHubContext<FollowersHub> hubContext, ITwitchApiClient twitchApiClient, UserAccessTokenStore userAccessTokenStore, int toId)
         {
-            _twitchApiClient = twitchApiClient;
             _hubContext = hubContext;
+            _twitchApiClient = twitchApiClient;
+            _userAccessTokenStore = userAccessTokenStore;
             _toId = toId;
         }
 
         public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            var follows = await _twitchApiClient.GetFollows(_toId);
+            var follows = await _twitchApiClient.GetFollows(_toId, _userAccessTokenStore?.UserAccessToken?.AccessToken);
             await _hubContext.Clients.All.SendAsync("UpdateFollowers", follows.Total);
         }
     }

@@ -64,7 +64,7 @@ namespace CustomFollowerGoal.Controllers
         public async Task<IActionResult> Follows(FollowsWebHookModel newFollows)
         {
             var data = newFollows.Data[0];
-            var follows = await _twitchApiClient.GetFollows(data.ToId);
+            var follows = await _twitchApiClient.GetFollows(data.ToId, _userAccessTokenStore?.UserAccessToken?.AccessToken);
             await _followersHubContext.Clients.All.SendAsync("UpdateFollowers", follows.Total);
 
             return Ok();

@@ -47,10 +47,9 @@ namespace CustomFollowerGoal
                 IConfiguration configuration = serviceProvider.GetService<IConfiguration>();
                 IConfigurationSection appSettings = configuration.GetSection("AppSettings");
 
-                string oauthToken = appSettings["api-oauth-token"];
                 string clientId = appSettings["api-client-id"];
                 string clientSecret = appSettings["api-client-secret"];
-                return new TwitchApiClient(oauthToken, clientId, clientSecret);
+                return new TwitchApiClient(clientId, clientSecret);
             });
 
             //add scheduled webhook subscription task for follows
@@ -73,6 +72,7 @@ namespace CustomFollowerGoal
             services.AddSingleton<IScheduledTask, WebHookSubscriptionTask>(serviceProvider =>
             {
                 ITwitchApiClient twitchApiClient = serviceProvider.GetService<ITwitchApiClient>();
+                UserAccessTokenStore userAccessTokenStore = serviceProvider.GetService<UserAccessTokenStore>();
                 var model = new WebHooksModel()
                 {
                     Callback = "http://test-env.eba-aafhtxzp.us-west-2.elasticbeanstalk.com/api/twitchwebhook/subs",
@@ -81,19 +81,21 @@ namespace CustomFollowerGoal
                     LeaseSeconds = 864000 //max lease time
                 };
 
-                return new WebHookSubscriptionTask(twitchApiClient, model);
+                return new WebHookSubscriptionTask(twitchApiClient, model, userAccessTokenStore);
             });
 
             //add scheduled followers update task
             services.AddSingleton<IScheduledTask, UpdateFollowersTask>(serviceProvider =>
             {
-                ITwitchApiClient twitchApiClient = serviceProvider.GetService<ITwitchApiClient>();
                 IHubContext<FollowersHub> hubContext = serviceProvider.GetService<IHubContext<FollowersHub>>();
+                ITwitchApiClient twitchApiClient = serviceProvider.GetService<ITwitchApiClient>();
+                UserAccessTokenStore userAccessTokenStore = serviceProvider.GetService<UserAccessTokenStore>();
+                
 
                 IConfiguration configuration = serviceProvider.GetService<IConfiguration>();
                 IConfigurationSection appSettings = configuration.GetSection("AppSettings");
 
-                return new UpdateFollowersTask(hubContext, twitchApiClient, int.Parse(appSettings["stream-id"]));
+                return new UpdateFollowersTask(hubContext, twitchApiClient, userAccessTokenStore, int.Parse(appSettings["stream-id"]));
             });
 
             //add scheduled subs update task
